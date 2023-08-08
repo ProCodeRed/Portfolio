@@ -1,11 +1,13 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
-
+const user = require("./model/UserSchema");
+const auth = require('./routers/auth');
 dotenv.config({path: './config.env'});
 
 // calling DB
 require('./db/connection')
+app.use(express.json());
 
 // configure port
 const PORT = process.env.PORT
@@ -15,9 +17,9 @@ const middleware = (req, res, next) => {
     next();
 }
 
-app.get('/', (req, res) => {
-    res.send("Hello Word")
-})
+// routing
+app.use(auth)
+
 
 app.get('/aboutme', middleware, (req, res) => {
     res.send("This is about me page")
