@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 require('../db/connection');
 const User = require('../model/UserSchema');
 
@@ -21,15 +22,15 @@ router.post('/register', async (req, res) => {
 
         if (userexist) {
             return res.status(422).json({ error: "This email already has been registered" })
-        }else if(password != cpassword){
+        } else if (password != cpassword) {
             return res.status(422).json({ error: "Oops! password mismached" })
-        }else{
+        } else {
 
             const users = new User({ name, email, phone, work, password, cpassword });
             const userData = await users.save();
-    
+
             // console.log(userData)
-    
+
             if (userData) {
                 res.status(201).json({ message: "user registered successfully" })
             }
@@ -52,17 +53,20 @@ router.get('/login', async (req, res) => {
             return res.status(400).json({ error: "Please enter valid email and password !" })
         }
 
-        const loggedinUser = await User.findOne({ email : email})
+        const loggedinUser = await User.findOne({ email: email });
 
-        // console.log(loggedinUser)
-
-        if(!loggedinUser){
-            res.status(400).json({ error: "User not found" })
-        }else{
-            res.status(200).json({ message: "Logged in !" })
+        if (loggedinUser) {
+            const matchPassd = await bcrypt.compare(password, loggedinUser.password);
+            // console.log(loggedinUser)
+            if (!matchPassd) {
+                res.status(400).json({ error: "Invalid Credentials" })
+            } else {
+                res.status(200).json({ message: "Logged in !" })
+            }
+        } else {
+            res.status(400).json({ error: "Invalid User" })
         }
 
-        
 
     } catch (error) {
         console.log(error)
