@@ -57,6 +57,8 @@ router.get('/login', async (req, res) => {
 
         if (loggedinUser) {
             const matchPassd = await bcrypt.compare(password, loggedinUser.password);
+            let token = await loggedinUser.generateAuthToken();
+            console.log(token)
             // console.log(loggedinUser)
             if (!matchPassd) {
                 res.status(400).json({ error: "Invalid Credentials" })
