@@ -58,8 +58,15 @@ router.get('/login', async (req, res) => {
         if (loggedinUser) {
             const matchPassd = await bcrypt.compare(password, loggedinUser.password);
             let token = await loggedinUser.generateAuthToken();
-            console.log(token)
+            // console.log(token)
             // console.log(loggedinUser)
+
+            // storing token in cookies
+            res.cookie("portfolioToken", token, {
+                expires: new Date(Date.now() + 25892000000),
+                httpOnly: true,
+            })
+
             if (!matchPassd) {
                 res.status(400).json({ error: "Invalid Credentials" })
             } else {
